@@ -1,1 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Car Price Estimator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f2f6fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .wrapper {
+      background: #ffffff;
+      width: 100%;
+      max-width: 860px;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.8s ease;
+    }
+
+    h2 {
+      text-align: center;
+      color: #1a237e;
+      font-size: 32px;
+      margin-bottom: 40px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      padding: 12px 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      background-color: #f9fafb;
+      transition: border 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #3f51b5;
+      outline: none;
+    }
+
+    button {
+      grid-column: 1 / -1;
+      padding: 16px;
+      background: linear-gradient(to right, #3f51b5, #5c6bc0);
+      border: none;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #303f9f, #3f51b5);
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h2>🚘 Predict Your Car's Value</h2>
+    <form method="POST" action="/predict">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="year">Purchase Year</label>
+          <input type="number" name="year" placeholder="e.g. 2017" required>
+        </div>
+
+        <div class="form-group">
+          <label for="km_driven">Kilometers Driven</label>
+          <input type="number" name="km_driven" placeholder="e.g. 45000" required>
+        </div>
+
+        <div class="form-group">
+          <label for="fuel">Fuel Type</label>
+          <select name="fuel" required>
+            <option disabled selected>Select fuel type</option>
+            <option>Petrol</option>
+            <option>Diesel</option>
+            <option>CNG</option>
+            <option>LPG</option>
+            <option>Electric</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="transmission">Transmission</label>
+          <select name="transmission" required>
+            <option disabled selected>Select transmission</option>
+            <option>Manual</option>
+            <option>Automatic</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="owner">Ownership</label>
+          <select name="owner" required>
+            <option disabled selected>Select ownership</option>
+            <option>First Owner</option>
+            <option>Second Owner</option>
+            <option>Third Owner</option>
+            <option>Fourth & Above Owner</option>
+            <option>Test Drive Car</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="Brand">Car Brand</label>
+          <select name="Brand" id="Brand" required onchange="updateModels()">
+            {% for b in brands %}
+              <option value="{{ b }}">{{ b }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="Model">Car Model</label>
+          <select name="Model" id="Model" required></select>
+        </div>
+
+        <button type="submit">🎯 Predict Estimated Price</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const brandModelMap = {{ model_map | safe }};
+    const brandSelect = document.getElementById("Brand");
+    const modelSelect = document.getElementById("Model");
+
+    function updateModels() {
+      const selectedBrand = brandSelect.value;
+      const models = brandModelMap[selectedBrand] || [];
+      modelSelect.innerHTML = "";
+      models.forEach(model => {
+        const option = document.createElement("option");
+        option.value = model;
+        option.textContent = model;
+        modelSelect.appendChild(option);
+      });
+    }
+
+    window.onload = updateModels;
+  </script>
+</body>
+</html>
